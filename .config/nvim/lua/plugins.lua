@@ -1,3 +1,5 @@
+vim.cmd [[packadd packer.nvim]]
+
 return require('packer').startup(function(use)
     -- Packer.nvim for managing plugins
     use 'wbthomason/packer.nvim'
@@ -8,7 +10,13 @@ return require('packer').startup(function(use)
         run = 'yarn install --frozen-lockfile',
     }
     -- Treesitter for parsing
-    use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
+    use {
+        'nvim-treesitter/nvim-treesitter',
+        run = function()
+            local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
+            ts_update()
+        end,
+    }
     -- Ayu theme for Neovim
     use 'Shatur/neovim-ayu'
     -- nvim-tree for file navigation
@@ -67,5 +75,6 @@ return require('packer').startup(function(use)
             }
         end
     }
+    -- Heirline for status lines and winbars
     use 'rebelot/heirline.nvim'
 end)
