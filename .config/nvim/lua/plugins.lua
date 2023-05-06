@@ -83,4 +83,5 @@ return require('packer').startup(function(use)
     -- undotree for getting a tree of undos
     use 'mbbill/undotree'
     use 'tpope/vim-fugitive'
+    use 'gpanders/editorconfig.nvim'
 end)
