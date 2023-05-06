@@ -25,7 +25,10 @@ return require('packer').startup(function(use)
         requires = 'nvim-tree/nvim-web-devicons'
     }
     -- Telescope for fuzzy finder
-    use 'nvim-telescope/telescope.nvim'
+    use {
+        'nvim-telescope/telescope.nvim',
+        requires = { { 'nvim-lua/plenary.nvim' } }
+    }
     -- Toggleterm for terminal
     use 'akinsho/toggleterm.nvim'
     -- Gitsigns for git integration
@@ -75,6 +78,9 @@ return require('packer').startup(function(use)
             }
         end
     }
-    -- Heirline for status lines and winbars
-    use 'rebelot/heirline.nvim'
+    -- vim-airline for statusbar
+    use 'vim-airline/vim-airline'
+    -- undotree for getting a tree of undos
+    use 'mbbill/undotree'
+    use 'tpope/vim-fugitive'
 end)
