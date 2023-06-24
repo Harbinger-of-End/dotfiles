@@ -1,87 +1,121 @@
-vim.cmd [[packadd packer.nvim]]
+local ensure_packer = function()
+    local fn = vim.fn
+    local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
+    if fn.empty(fn.glob(install_path)) > 0 then
+        fn.system {
+            "git",
+            "clone",
+            "--depth",
+            "1",
+            "https://github.com/wbthomason/packer.nvim",
+            install_path,
+        }
+        vim.cmd [[packadd packer.nvim]]
+        return true
+    end
+    return false
+end
 
-return require('packer').startup(function(use)
-    -- Packer.nvim for managing plugins
-    use 'wbthomason/packer.nvim'
-    -- COC for autocompletion
+vim.cmd [[
+    augroup packer_user_config
+        autocmd!
+        autocmd BufWritePost plugins.lua source <afile> | PackerSync
+    augroup end
+]]
+
+local packer_bootstrap = ensure_packer()
+local status, packer = pcall(require, "packer")
+if not status then return end
+
+return packer.startup(function(use)
+    use "wbthomason/packer.nvim"
+    use "nvim-lua/plenary.nvim"
+
+    -- Ayu colorscheme
+    use "Shatur/neovim-ayu"
+
+    -- Split window navigation
+    use "christoomey/vim-tmux-navigator"
+
+    -- Maximising and restoring current window
+    use "szw/vim-maximizer"
+
+    -- Surround motions
+    use "tpope/vim-surround"
+
+    -- Replace stuff with copied stuff
+    use "vim-scripts/ReplaceWithRegister"
+
+    -- Commenting using gc
+    use "numToStr/Comment.nvim"
+
+    -- File tree explorer
+    use "nvim-tree/nvim-tree.lua"
+
+    -- Devicons
+    use "kyazdani42/nvim-web-devicons"
+
+    -- Statusline
+    use "nvim-lualine/lualine.nvim"
+
+    -- Telescope fuzzy finder
     use {
-        'neoclide/coc.nvim',
-        branch = 'release',
-        run = 'yarn install --frozen-lockfile',
+        "nvim-telescope/telescope-fzf-native.nvim",
+        run = "make",
     }
-    -- Treesitter for parsing
+    use "nvim-telescope/telescope.nvim"
+
+    -- Autocompletion
+    use "hrsh7th/nvim-cmp"
+    use "hrsh7th/cmp-buffer"
+    use "hrsh7th/cmp-path"
+
+    -- Snippets
+    use "L3MON4D3/LuaSnip"
+    use "saadparwaiz1/cmp_luasnip"
+    use "rafamadriz/friendly-snippets"
+
+    -- LSP server manager
+    use "williamboman/mason.nvim"
+    use "williamboman/mason-lspconfig.nvim"
+
+    -- Configuring LSP servers
+    use "neovim/nvim-lspconfig"
+    use "hrsh7th/cmp-nvim-lsp"
+    use { "glepnir/lspsaga.nvim", branch = "main" }
+    use "jose-elias-alvarez/typescript.nvim"
+    use "onsails/lspkind.nvim"
+
+    -- formatting & linting
+    use("jose-elias-alvarez/null-ls.nvim")
+    use("jayp0521/mason-null-ls.nvim")
+
+    -- treesitter configuration
     use {
-        'nvim-treesitter/nvim-treesitter',
+        "nvim-treesitter/nvim-treesitter",
         run = function()
-            local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
+            local ts_update = require("nvim-treesitter.install").update { with_sync = true }
             ts_update()
         end,
     }
-    -- Ayu theme for Neovim
-    use 'Shatur/neovim-ayu'
-    -- nvim-tree for file navigation
-    use {
-        'nvim-tree/nvim-tree.lua',
-        requires = 'nvim-tree/nvim-web-devicons'
-    }
-    -- Telescope for fuzzy finder
-    use {
-        'nvim-telescope/telescope.nvim',
-        requires = { { 'nvim-lua/plenary.nvim' } }
-    }
-    -- Toggleterm for terminal
-    use 'akinsho/toggleterm.nvim'
-    -- Gitsigns for git integration
-    use {
-        'lewis6991/gitsigns.nvim',
-        config = function()
-            require('gitsigns').setup {
-                signs                        = {
-                    add          = { text = 'A' },
-                    change       = { text = 'C' },
-                    delete       = { text = 'D' },
-                    topdelete    = { text = 'TD' },
-                    changedelete = { text = 'CD' },
-                    untracked    = { text = 'U' },
-                },
-                signcolumn                   = true,
-                numhl                        = false,
-                linehl                       = false,
-                word_diff                    = false,
-                watch_gitdir                 = {
-                    interval = 1000,
-                    follow_files = true
-                },
-                attach_to_untracked          = true,
-                current_line_blame           = false,
-                current_line_blame_opts      = {
-                    virt_text = true,
-                    virt_text_pos = 'eol',
-                    delay = 1000,
-                    ignore_whitespace = false,
-                },
-                current_line_blame_formatter = '<author>, <author_time:%Y-%m-%d> - <summary>',
-                sign_priority                = 6,
-                update_debounce              = 100,
-                status_formatter             = nil,
-                max_file_length              = 40000,
-                preview_config               = {
-                    border = 'single',
-                    style = 'minimal',
-                    relative = 'cursor',
-                    row = 0,
-                    col = 1
-                },
-                yadm                         = {
-                    enable = false
-                },
-            }
-        end
-    }
-    -- vim-airline for statusbar
-    use 'vim-airline/vim-airline'
-    -- undotree for getting a tree of undos
-    use 'mbbill/undotree'
-    use 'tpope/vim-fugitive'
-    use 'gpanders/editorconfig.nvim'
+
+    -- auto closing
+    use "windwp/nvim-autopairs"
+    use { "windwp/nvim-ts-autotag", after = "nvim-treesitter" }
+
+    -- git integration
+    use "lewis6991/gitsigns.nvim"
+
+    -- Editorconfig support
+    use "gpanders/editorconfig.nvim"
+
+    -- Discord neovim rich presence
+    use "andweeb/presence.nvim"
+
+    -- Git integration
+    use "tpope/vim-fugitive"
+
+    if packer_bootstrap then
+        packer.sync()
+    end
 end)
